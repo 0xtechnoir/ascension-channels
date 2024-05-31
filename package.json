@@ -1,0 +1,58 @@
+{
+  "name": "my-dapp",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon -w src/server -x tsx src/server/main.ts",
+    "build": "tsc && vite build --mode devnet",
+    "ci:build": "tsc && vite build --mode testnet --outDir ../../build_outputs/smart-deployable-base/dist",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "deploy:devnet": "../../scripts/deploy-dapp-to-environment.sh -n smart-deployable-base -e devnet",
+    "preview": "nx preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@eveworld/assets": "0.0.2",
+    "@eveworld/chains": "0.0.2",
+    "@eveworld/contexts": "0.0.2",
+    "@eveworld/types": "0.0.2",
+    "@eveworld/ui-components": "0.0.2",
+    "@eveworld/utils": "0.0.2",
+    "@mui/material": "^5.15.15",
+    "@typescript-eslint/eslint-plugin": "5.46.1",
+    "@typescript-eslint/parser": "5.46.1",
+    "express": "^4.19.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3",
+    "tsx": "^4.11.0",
+    "viem": "^2.9.9",
+    "vite-express": "^0.16.0",
+    "vite-plugin-svgr": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.4",
+    "@types/react": "^18.2.74",
+    "@types/react-dom": "^18.2.24",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitejs/plugin-react-swc": "^3.6.0",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "nodemon": "^3.1.2",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.4.3",
+    "vite": "^5.2.8"
+  },
+  "nx": {
+    "includedScripts": [
+      "ci:build",
+      "deploy:devnet"
+    ]
+  }
+}

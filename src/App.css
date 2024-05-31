@@ -1,0 +1,168 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import url("https://fonts.googleapis.com/css2?family=Sometype+Mono:wght@400;600;700&display=swap");
+
+body {
+  font-family: "Sometype Mono", sans-serif;
+  font-size: 16px;
+  color: hsla(26, 85%, 58%, 1);
+  background-color: hsla(20, 65%, 5%, 1);
+  background-image: url("./assets/background.gif");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 0; /* Remove scrollbar space */
+  background: transparent; /* Optional: just make scrollbar invisible */
+  border: 1px solid hsla(26, 85%, 58%, 1);
+}
+::-webkit-scrollbar-thumb {
+  background: hsla(26, 85%, 58%, 1);
+  padding: 1px;
+}
+
+*::focus,
+*::focus-visible {
+  outline: none !important;
+}
+
+.animated-box {
+  animation: colorChange 3s infinite;
+  animation-timing-function: steps(1, end);
+}
+
+@keyframes colorChange {
+  0% {
+    background-color: hsla(26, 85%, 58%, 0.5);
+  }
+  80% {
+    background-color: hsla(26, 85%, 58%, 1);
+  }
+}
+
+@layer base {
+  .scroll-container {
+    position: relative;
+  }
+
+  .scroll-content {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 100%;
+  }
+
+  .Eve-Scrollbar {
+    @apply p-[1px] border border-brightquantum absolute top-0 right-0 h-full w-[0.5rem];
+  }
+
+  .Eve-Scroll-Thumb {
+    @apply bg-brightquantum relative w-[0.25rem];
+    border-radius: 0px;
+  }
+
+  svg {
+    @apply text-inherit fill-inherit;
+  }
+
+  button {
+    @apply flex justify-center items-center text-sm;
+  }
+
+  button.primary {
+    @apply text-sm leading-4 px-8 py-2 bg-brightquantum text-crude relative font-bold self-stretch uppercase;
+  }
+  button.primary:hover {
+    @apply bg-neutral;
+  }
+  button.primary:disabled {
+    @apply bg-[#381B0C] text-[#5C3421];
+  }
+
+  button.primary-sm {
+    @apply px-2 py-1;
+  }
+
+  button.secondary {
+    @apply leading-6 px-2 mobile:px-0 py-1 bg-quantum-8 text-crude relative font-bold self-stretch;
+  }
+  button.secondary:hover {
+    @apply bg-brightquantum;
+  }
+  button.secondary:disabled {
+    @apply bg-[#381B0C] text-[#5C3421];
+  }
+
+  button.tertiary {
+    @apply text-xs uppercase font-bold px-2 mobile:px-0 py-1 bg-neutral-20 text-brightquantum self-stretch;
+  }
+  button.tertiary:hover {
+    @apply text-neutral;
+  }
+  button.tertiary:disabled {
+    @apply text-grayneutral;
+  }
+
+  button.ghost {
+    @apply text-sm leading-4 uppercase font-bold px-2 mobile:px-0 py-1 border border-brightquantum self-stretch;
+  }
+  button.ghost:hover {
+    @apply border-neutral  text-neutral;
+  }
+}
+
+@layer components {
+  button.active {
+    @apply bg-crude;
+  }
+
+  a {
+    @apply text-white tracking-wider;
+  }
+
+  a.active,
+  a::hover {
+    @apply underline;
+  }
+
+  .Entity-About > div {
+    @apply flex justify-between;
+  }
+
+  .Entity-About > div > span:first-of-type {
+    @apply text-xs font-normal;
+  }
+
+  .Entity-About > div > span:last-of-type {
+    @apply text-xs font-semibold text-right;
+  }
+
+  div.Quantum-Container {
+    @apply border border-brightquantum p-2;
+  }
+}
+
+@layer utilities {
+  .background-blur {
+    @apply bg-crude-btn flex backdrop-blur rounded-sm;
+  }
+  .active {
+    @apply font-bold underline;
+  }
+  .Title {
+    @apply capitalize font-bold text-xs p-2;
+  }
+
+  #header div {
+    @apply p-[0.43rem] mobile:px-3 mobile:py-2 border border-brightquantum gap-2 flex whitespace-nowrap text-brightquantum text-sm leading-4 font-semibold capitalize tracking-wide;
+  }
+
+  .Absolute-Center {
+    @apply absolute mx-auto left-0 right-0 top-[25vh];
+  }
+}
