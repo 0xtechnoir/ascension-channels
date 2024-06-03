@@ -7,6 +7,7 @@ import { mnemonicToAccount } from "viem/accounts";
 import { ViemLocalEip712Signer } from "@farcaster/hub-nodejs";
 import "dotenv/config";
 
+const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
 
@@ -58,8 +59,8 @@ app.post("/cast", async (req: Request, res: Response) => {
   }
 });
 
-ViteExpress.listen(app, 3000, () =>
-  console.log("Server is listening on port 3000...")
+ViteExpress.listen(app, Number(PORT), () =>
+  console.log(`Server is listening on port ${PORT}...`)
 );
 
 const getSignedKey = async () => {
