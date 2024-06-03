@@ -3,6 +3,7 @@ import axios from "axios";
 import styles from "./page.module.css";
 import QRCode from "qrcode.react";
 import { WalletContext } from "@eveworld/contexts";
+import FarcasterFeed from "./FarcasterFeed";
 
 interface FarcasterUser {
   signer_uuid: string;
@@ -175,7 +176,7 @@ export default function Farcaster() {
               </button>
               )
             }
-      
+            <FarcasterFeed />
             {farcasterUser?.status == "pending_approval" &&
               farcasterUser?.signer_approval_url && (
                 <div className={styles.qrContainer}>

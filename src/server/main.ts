@@ -25,10 +25,10 @@ app.post("/signer", async (_, res: Response) => {
 });
 
 app.get("/signer/:signer_uuid", async (req: Request, res: Response) => {
-  if (!process.env.NEYNAR_API_KEY) {
-    throw new Error("Make sure you set NEYNAR_API_KEY in your .env file");
+  if (!process.env.VITE_NEYNAR_API_KEY) {
+    throw new Error("Make sure you set VITE_NEYNAR_API_KEY in your .env file");
   }
-  const neynarClient = new NeynarAPIClient(process.env.NEYNAR_API_KEY);
+  const neynarClient = new NeynarAPIClient(process.env.VITE_NEYNAR_API_KEY);
   // This is hardcoded for now, as it's a previously created signer. 
   // It looks like there may be a limit on the number of allowed, as there are 3 existing signers 
   // on my account from previous tests.
@@ -47,10 +47,10 @@ app.get("/signer/:signer_uuid", async (req: Request, res: Response) => {
 
 app.post("/cast", async (req: Request, res: Response) => {
   const body = req.body;
-  if (!process.env.NEYNAR_API_KEY) {
-    throw new Error("Make sure you set NEYNAR_API_KEY in your .env file");
+  if (!process.env.VITE_NEYNAR_API_KEY) {
+    throw new Error("Make sure you set VITE_NEYNAR_API_KEY in your .env file");
   }
-  const neynarClient = new NeynarAPIClient(process.env.NEYNAR_API_KEY);
+  const neynarClient = new NeynarAPIClient(process.env.VITE_NEYNAR_API_KEY);
   try {
     const cast = await neynarClient.publishCast(body.signer_uuid, body.text);
     return res.status(200).send(cast);
@@ -64,10 +64,10 @@ ViteExpress.listen(app, Number(PORT), () =>
 );
 
 const getSignedKey = async () => {
-  if (!process.env.NEYNAR_API_KEY) {
-    throw new Error("Make sure you set NEYNAR_API_KEY in your .env file");
+  if (!process.env.VITE_NEYNAR_API_KEY) {
+    throw new Error("Make sure you set VITE_NEYNAR_API_KEY in your .env file");
   }
-  const neynarClient = new NeynarAPIClient(process.env.NEYNAR_API_KEY);
+  const neynarClient = new NeynarAPIClient(process.env.VITE_NEYNAR_API_KEY);
   const createSigner = await neynarClient.createSigner();
   const { deadline, signature } = await generate_signature(
     createSigner.public_key
@@ -113,10 +113,10 @@ const generate_signature = async function (public_key: string) {
 };
 
 const getFid = async () => {
-  if (!process.env.NEYNAR_API_KEY) {
-    throw new Error("Make sure you set NEYNAR_API_KEY in your .env file");
+  if (!process.env.VITE_NEYNAR_API_KEY) {
+    throw new Error("Make sure you set VITE_NEYNAR_API_KEY in your .env file");
   }
-  const neynarClient = new NeynarAPIClient(process.env.NEYNAR_API_KEY);
+  const neynarClient = new NeynarAPIClient(process.env.VITE_NEYNAR_API_KEY);
   if (!process.env.FARCASTER_DEVELOPER_MNEMONIC) {
     throw new Error("FARCASTER_DEVELOPER_MNEMONIC is not set.");
   }
