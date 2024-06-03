@@ -1,5 +1,4 @@
 import { useContext, useEffect } from "react";
-
 import { SmartObjectContext, FeedbackContext } from "@eveworld/contexts";
 import {
   SmartDeployableInfo,
@@ -10,10 +9,10 @@ import {
 } from "@eveworld/ui-components";
 import { abbreviateAddress } from "@eveworld/utils";
 import { Severity } from "@eveworld/types";
-
 import SmartStorageUnitActions from "./SmartStorageUnitActions";
 import EquippedModules from "./Modules";
 import BaseImage from "../assets/base-image.png";
+import Farcaster from "./Farcaster";
 
 export default function EntityView() {
   const { smartDeployable, loading, isCurrentChain } =
@@ -48,7 +47,9 @@ export default function EntityView() {
           </div>
           <img src={BaseImage} />
           <SmartStorageUnitActions />
-
+          <div className="Quantum-Container font-normal text-xs !py-4">
+            <Farcaster />
+          </div>
           <div className="Quantum-Container Title">Description</div>
           <div className="Quantum-Container font-normal text-xs !py-4">
             {smartDeployable?.description}

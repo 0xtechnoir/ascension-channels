@@ -8,6 +8,7 @@ node_modules/
 vendor/
 
 # Ignore environment-specific files
+.env
 .env.*
 .envsample
 
@@ -33,14 +34,10 @@ Thumbs.db
 *.min.js
 *.min.css
 
-# Ignore package lock files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
 # Ignore miscellaneous files
 *.bak
 *.swp
 *.tmp
 *.tmp.*
 *.~lock.*
+.vercel
