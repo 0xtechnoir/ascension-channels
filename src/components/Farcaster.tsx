@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import styles from "./page.module.css";
 import QRCode from "qrcode.react";
+import { WalletContext } from "@eveworld/contexts";
 
 interface FarcasterUser {
   signer_uuid: string;
@@ -12,6 +13,9 @@ interface FarcasterUser {
 }
 
 export default function Farcaster() {
+
+  const REQUIRED_TOKEN = "0x011FAeAf1d555beD45861193359dB0287D7648C2";
+  const FAKE_TOKEN = "0x325d0fB01432ba65faCF5691e087ddb68e9de911";
   const LOCAL_STORAGE_KEYS = {
     FARCASTER_USER: "farcasterUser",
   };
@@ -21,6 +25,36 @@ export default function Farcaster() {
   );
   const [text, setText] = useState<string>("");
   const [isCasting, setIsCasting] = useState<boolean>(false);
+  const [hasAccess, setHasAccess] = useState<boolean>(false);
+
+  const { walletClient, publicClient } = useContext(WalletContext);
+  useEffect(() => {
+    if (!walletClient?.account) return;
+    const addr = walletClient.account.address;
+    console.log("Account Address: ", addr.toLowerCase())
+
+    Promise.resolve(
+      fetch(
+        `https://testnet-game-blockscout-api.nursery.reitnorf.com/api/v2/tokens/${REQUIRED_TOKEN}/holders`
+      )
+    )
+      .then((res) => res.json())
+      .then((x) => {
+        for (let i = 0; i < x.items.length; i++) {
+          console.log("player address: ", x.items[i].address.hash.toLowerCase());
+          if (x.items[i].address.hash.toLowerCase() == addr.toLowerCase()) {
+            console.log("Player holds the correct token. Granting Access");
+            setHasAccess(true);
+            break;
+          }
+        }
+      })
+      .catch((err) => console.error(err));
+  }, [walletClient?.account]);
+
+  useEffect(() => {
+    console.log("Has Access: ", hasAccess);
+  }, [hasAccess]);
 
   const handleCast = async () => {
     setIsCasting(true);
@@ -127,56 +161,64 @@ export default function Farcaster() {
   };
 
   return (
-    // <p>Hello World</p>
     <div className={styles.container}>
-      {!farcasterUser?.status && (
-        <button
-          className={styles.btn}
-          onClick={handleSignIn}
-          disabled={loading}
-        >
-          {loading ? "Loading..." : "Sign in with farcaster"}
-        </button>
-      )}
-
-      {farcasterUser?.status == "pending_approval" &&
-        farcasterUser?.signer_approval_url && (
-          <div className={styles.qrContainer}>
-            <QRCode value={farcasterUser.signer_approval_url} />
-            <div className={styles.or}>OR</div>
-            <a
-              href={farcasterUser.signer_approval_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.link}
-            >
-              Click here to view the signer URL (on mobile)
-            </a>
-          </div>
-        )}
-
-      {farcasterUser?.status == "approved" && (
-        <div className={styles.castSection}>
-          <div className={styles.userInfo}>Hello {farcasterUser.fid} 👋</div>
-          <div className={styles.castContainer}>
-            <textarea
-              className={styles.castTextarea}
-              placeholder="What's on your mind?"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={5}
-            />
-
-            <button
-              className={styles.btn}
-              onClick={handleCast}
-              disabled={isCasting}
-            >
-              {isCasting ? <span>🔄</span> : "Cast"}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+        {hasAccess ? (
+          <>
+            <div className={styles.userInfo}>Access Granted</div>
+            {!farcasterUser?.status && (
+              <button
+                className={styles.btn}
+                onClick={handleSignIn}
+                disabled={loading}
+              >
+                {loading ? "Loading..." : "Sign in with farcaster"}
+              </button>
+              )
+            }
+      
+            {farcasterUser?.status == "pending_approval" &&
+              farcasterUser?.signer_approval_url && (
+                <div className={styles.qrContainer}>
+                  <QRCode value={farcasterUser.signer_approval_url} />
+                  <div className={styles.or}>OR</div>
+                  <a
+                    href={farcasterUser.signer_approval_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.link}
+                  >
+                    Click here to view the signer URL (on mobile)
+                  </a>
+                </div>
+              )
+            }
+      
+            {farcasterUser?.status == "approved" && (
+              <div className={styles.castSection}>
+                <div className={styles.userInfo}>Hello {farcasterUser.fid} 👋</div>
+                <div className={styles.castContainer}>
+                  <textarea
+                    className={styles.castTextarea}
+                    placeholder="What's on your mind?"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    rows={5}
+                  />
+      
+                  <button
+                    className={styles.btn}
+                    onClick={handleCast}
+                    disabled={isCasting}
+                  >
+                    {isCasting ? <span>🔄</span> : "Cast"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>)
+          : (
+            <div className={styles.userInfo}>Access Denied</div>
+          )}
+      </div>
+  )
 }
