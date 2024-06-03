@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon -w src/server -x tsx src/server/main.ts",
     "start": "NODE_ENV=development npx tsx src/server/main.ts",
-    "build": "tsc && vite build --mode devnet --legacy-peer-deps",
+    "build": "tsc && vite build --mode devnet",
     "ci:build": "tsc && vite build --mode testnet --outDir ../../build_outputs/smart-deployable-base/dist",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "deploy:devnet": "../../scripts/deploy-dapp-to-environment.sh -n smart-deployable-base -e devnet",

@@ -34,11 +34,6 @@ Thumbs.db
 *.min.js
 *.min.css
 
-# Ignore package lock files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
 # Ignore miscellaneous files
 *.bak
 *.swp
