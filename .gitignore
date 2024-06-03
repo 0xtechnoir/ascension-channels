@@ -44,3 +44,4 @@ pnpm-lock.yaml
 *.tmp
 *.tmp.*
 *.~lock.*
+.vercel

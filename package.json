@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon -w src/server -x tsx src/server/main.ts",
+    "start": "NODE_ENV=development npx tsx src/server/main.ts",
     "build": "tsc && vite build --mode devnet",
     "ci:build": "tsc && vite build --mode testnet --outDir ../../build_outputs/smart-deployable-base/dist",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
