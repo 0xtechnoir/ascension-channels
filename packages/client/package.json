@@ -5,9 +5,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "vite build",
-    "dev": "wait-port localhost:8545 && nodemon -w src/server -x tsx ./server/main.ts",
-    "start": "NODE_ENV=development npx tsx ./server/main.ts",
+    "build": "tsc && vite build --mode devnet",
+    "dev": "wait-port localhost:8545 && nodemon -w server -x tsx server/main.ts",
+    "start": "NODE_ENV=development npx tsx server/main.ts",
     "preview": "vite preview",
     "test": "tsc --noEmit"
   },
