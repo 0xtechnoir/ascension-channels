@@ -151,7 +151,7 @@ export default function Farcaster() {
   };
 
   const moderate = async (data: Response) => {
-    const MODERATOR_FID = Number(process.env.MODERATOR_FID);
+    const MODERATOR_FID = Number(import.meta.env.MODERATOR_FID);
     console.log("Moderator function called");
     const casts: Cast[] = data.casts;
     //  loop through casts

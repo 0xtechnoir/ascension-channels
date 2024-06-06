@@ -4,8 +4,10 @@ import { Request, Response } from "express";
 import getSignedKey from "./getSignedKey";
 import neynarClient from "./neynatClient";
 import "dotenv/config";
+import fetch from "node-fetch";
 
 const PORT = process.env.PORT || 3000;
+const NEYNAR_API_KEY = process.env.VITE_NEYNAR_API_KEY;
 const app = express();
 app.use(express.json());
 
@@ -13,10 +15,8 @@ app.get("/hello", (_, res) => {
   res.send("Hello Vite + React + TypeScript!");
 });
 
-app.post('/', async (req: Request, res: Response) => {
+app.get("/getPosts", async (_: Request, res: Response) => {
   try {
-    const hookData = JSON.parse(req.body);
-    console.log("hookdata: ", hookData);
   } catch (error) {
     console.error(error);
   }
@@ -32,9 +32,6 @@ app.post("/signer", async (_, res: Response) => {
 });
 
 app.get("/signer/:signer_uuid", async (req: Request, res: Response) => {
-  if (!process.env.VITE_NEYNAR_API_KEY) {
-    throw new Error("Make sure you set VITE_NEYNAR_API_KEY in your .env file");
-  }
   const signer_uuid = req.params.signer_uuid;
   if (!signer_uuid) {
     return res.status(400).send("signer_uuid is required");
@@ -48,17 +45,29 @@ app.get("/signer/:signer_uuid", async (req: Request, res: Response) => {
 });
 
 app.post("/cast", async (req: Request, res: Response) => {
+  const channelId: string = "dead";
   const body = req.body;
-  try {
-    const cast = await neynarClient.publishCast(body.signer_uuid, body.text);
-    return res.status(200).send(cast);
-  } catch (error) {
-    return res.status(500);
-  }
+  const url = "https://api.neynar.com/v2/farcaster/cast";
+  const options = {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      api_key: NEYNAR_API_KEY || "",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      signer_uuid: body.signer_uuid,
+      text: body.text,
+      channel_id: channelId,
+    }),
+  };
+
+  fetch(url, options)
+    .then((res) => res.json())
+    .then((json) => console.log(json))
+    .catch((err) => console.error("error:" + err));
 });
 
 ViteExpress.listen(app, Number(PORT), () =>
   console.log(`Server is listening on port ${PORT}...`)
 );
-
-
