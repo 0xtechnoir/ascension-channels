@@ -10,7 +10,5 @@ pragma solidity >=0.8.24;
 interface IFidRegistrySystem {
   function tn_ns_1__registerFid(uint32 fid, address owner) external;
 
-  function tn_ns_1__getPlayerAddress(uint32 fid) external view returns (address);
-
   function tn_ns_1__deleteFid(uint32 fid) external;
 }

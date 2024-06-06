@@ -24,8 +24,13 @@ ResourceId constant _tableId = ResourceId.wrap(0x7462746e5f6e735f310000000000000
 ResourceId constant FidRegistryTableId = _tableId;
 
 FieldLayout constant _fieldLayout = FieldLayout.wrap(
-  0x0014010014000000000000000000000000000000000000000000000000000000
+  0x0018020004140000000000000000000000000000000000000000000000000000
 );
+
+struct FidRegistryData {
+  uint32 fid;
+  address playerAddress;
+}
 
 library FidRegistry {
   /**
@@ -42,7 +47,7 @@ library FidRegistry {
    */
   function getKeySchema() internal pure returns (Schema) {
     SchemaType[] memory _keySchema = new SchemaType[](1);
-    _keySchema[0] = SchemaType.UINT32;
+    _keySchema[0] = SchemaType.BYTES32;
 
     return SchemaLib.encode(_keySchema);
   }
@@ -52,8 +57,9 @@ library FidRegistry {
    * @return _valueSchema The value schema for the table.
    */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _valueSchema = new SchemaType[](1);
-    _valueSchema[0] = SchemaType.ADDRESS;
+    SchemaType[] memory _valueSchema = new SchemaType[](2);
+    _valueSchema[0] = SchemaType.UINT32;
+    _valueSchema[1] = SchemaType.ADDRESS;
 
     return SchemaLib.encode(_valueSchema);
   }
@@ -64,7 +70,7 @@ library FidRegistry {
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
     keyNames = new string[](1);
-    keyNames[0] = "fid";
+    keyNames[0] = "key";
   }
 
   /**
@@ -72,8 +78,9 @@ library FidRegistry {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](1);
-    fieldNames[0] = "playerAddress";
+    fieldNames = new string[](2);
+    fieldNames[0] = "fid";
+    fieldNames[1] = "playerAddress";
   }
 
   /**
@@ -91,95 +98,208 @@ library FidRegistry {
   }
 
   /**
-   * @notice Get playerAddress.
+   * @notice Get fid.
    */
-  function getPlayerAddress(uint32 fid) internal view returns (address playerAddress) {
+  function getFid(bytes32 key) internal view returns (uint32 fid) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
+    _keyTuple[0] = key;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
-   * @notice Get playerAddress.
+   * @notice Get fid.
    */
-  function _getPlayerAddress(uint32 fid) internal view returns (address playerAddress) {
+  function _getFid(bytes32 key) internal view returns (uint32 fid) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
+    _keyTuple[0] = key;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (uint32(bytes4(_blob)));
+  }
+
+  /**
+   * @notice Set fid.
+   */
+  function setFid(bytes32 key, uint32 fid) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((fid)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set fid.
+   */
+  function _setFid(bytes32 key, uint32 fid) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((fid)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get playerAddress.
+   */
+  function getPlayerAddress(bytes32 key) internal view returns (address playerAddress) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
   /**
    * @notice Get playerAddress.
    */
-  function get(uint32 fid) internal view returns (address playerAddress) {
+  function _getPlayerAddress(bytes32 key) internal view returns (address playerAddress) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
+    _keyTuple[0] = key;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
-  }
-
-  /**
-   * @notice Get playerAddress.
-   */
-  function _get(uint32 fid) internal view returns (address playerAddress) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
   /**
    * @notice Set playerAddress.
    */
-  function setPlayerAddress(uint32 fid, address playerAddress) internal {
+  function setPlayerAddress(bytes32 key, address playerAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
+    _keyTuple[0] = key;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((playerAddress)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((playerAddress)), _fieldLayout);
   }
 
   /**
    * @notice Set playerAddress.
    */
-  function _setPlayerAddress(uint32 fid, address playerAddress) internal {
+  function _setPlayerAddress(bytes32 key, address playerAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
+    _keyTuple[0] = key;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((playerAddress)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((playerAddress)), _fieldLayout);
   }
 
   /**
-   * @notice Set playerAddress.
+   * @notice Get the full data.
    */
-  function set(uint32 fid, address playerAddress) internal {
+  function get(bytes32 key) internal view returns (FidRegistryData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
+    _keyTuple[0] = key;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((playerAddress)), _fieldLayout);
+    (bytes memory _staticData, PackedCounter _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
   }
 
   /**
-   * @notice Set playerAddress.
+   * @notice Get the full data.
    */
-  function _set(uint32 fid, address playerAddress) internal {
+  function _get(bytes32 key) internal view returns (FidRegistryData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
+    _keyTuple[0] = key;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((playerAddress)), _fieldLayout);
+    (bytes memory _staticData, PackedCounter _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using individual values.
+   */
+  function set(bytes32 key, uint32 fid, address playerAddress) internal {
+    bytes memory _staticData = encodeStatic(fid, playerAddress);
+
+    PackedCounter _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using individual values.
+   */
+  function _set(bytes32 key, uint32 fid, address playerAddress) internal {
+    bytes memory _staticData = encodeStatic(fid, playerAddress);
+
+    PackedCounter _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct.
+   */
+  function set(bytes32 key, FidRegistryData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.fid, _table.playerAddress);
+
+    PackedCounter _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using the data struct.
+   */
+  function _set(bytes32 key, FidRegistryData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.fid, _table.playerAddress);
+
+    PackedCounter _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Decode the tightly packed blob of static data using this table's field layout.
+   */
+  function decodeStatic(bytes memory _blob) internal pure returns (uint32 fid, address playerAddress) {
+    fid = (uint32(Bytes.slice4(_blob, 0)));
+
+    playerAddress = (address(Bytes.slice20(_blob, 4)));
+  }
+
+  /**
+   * @notice Decode the tightly packed blobs using this table's field layout.
+   * @param _staticData Tightly packed static fields.
+   *
+   *
+   */
+  function decode(
+    bytes memory _staticData,
+    PackedCounter,
+    bytes memory
+  ) internal pure returns (FidRegistryData memory _table) {
+    (_table.fid, _table.playerAddress) = decodeStatic(_staticData);
   }
 
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(uint32 fid) internal {
+  function deleteRecord(bytes32 key) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
+    _keyTuple[0] = key;
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -187,9 +307,9 @@ library FidRegistry {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(uint32 fid) internal {
+  function _deleteRecord(bytes32 key) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
+    _keyTuple[0] = key;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -198,8 +318,8 @@ library FidRegistry {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(address playerAddress) internal pure returns (bytes memory) {
-    return abi.encodePacked(playerAddress);
+  function encodeStatic(uint32 fid, address playerAddress) internal pure returns (bytes memory) {
+    return abi.encodePacked(fid, playerAddress);
   }
 
   /**
@@ -208,8 +328,8 @@ library FidRegistry {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(address playerAddress) internal pure returns (bytes memory, PackedCounter, bytes memory) {
-    bytes memory _staticData = encodeStatic(playerAddress);
+  function encode(uint32 fid, address playerAddress) internal pure returns (bytes memory, PackedCounter, bytes memory) {
+    bytes memory _staticData = encodeStatic(fid, playerAddress);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;
@@ -220,9 +340,9 @@ library FidRegistry {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(uint32 fid) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(bytes32 key) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(fid));
+    _keyTuple[0] = key;
 
     return _keyTuple;
   }

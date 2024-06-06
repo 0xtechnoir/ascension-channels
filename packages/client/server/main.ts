@@ -32,8 +32,8 @@ app.get("/signer/:signer_uuid", async (req: Request, res: Response) => {
   // This is hardcoded for now, as it's a previously created signer. 
   // It looks like there may be a limit on the number of allowed, as there are 3 existing signers 
   // on my account from previous tests.
-  const signer_uuid = "bc81ddd1-d7f9-463e-98b1-a3a63109ffa4";
-  // const signer_uuid = req.params.signer_uuid;
+  // const signer_uuid = "bc81ddd1-d7f9-463e-98b1-a3a63109ffa4";
+  const signer_uuid = req.params.signer_uuid;
   if (!signer_uuid) {
     return res.status(400).send("signer_uuid is required");
   }
