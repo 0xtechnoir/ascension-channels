@@ -7,22 +7,16 @@ import FarcasterFeed from "./FarcasterFeed";
 import { useMUD } from "../mud/MUDContext";
 import { useEntityQuery } from "@latticexyz/react";
 import { Has, getComponentValue } from "@latticexyz/recs";
-
-interface FarcasterUser {
-  signer_uuid: string;
-  public_key: string;
-  status: string;
-  signer_approval_url?: string;
-  fid?: number;
-}
+import { Cast, Response, FarcasterUser } from "./types";
 
 export default function Farcaster() {
   const {
     components: { FidRegistry },
     systemCalls: { registerFid },
   } = useMUD();
+
   const allRegisteredUsers = useEntityQuery([Has(FidRegistry)]);
-  const [registeredUser, setRegisteredUser] = useState<boolean>(false);
+  const [registeredFids, setRegisteredFids] = useState<number[]>([]);
 
   const REQUIRED_TOKEN = "0x011FAeAf1d555beD45861193359dB0287D7648C2";
   const FAKE_TOKEN = "0x325d0fB01432ba65faCF5691e087ddb68e9de911"; // for testing purposes
@@ -37,6 +31,10 @@ export default function Farcaster() {
   const [text, setText] = useState<string>("");
   const [isCasting, setIsCasting] = useState<boolean>(false);
   const [hasAccess, setHasAccess] = useState<boolean>(false);
+  const [feed, setFeed] = useState<Response | null>(null);
+  const [isPollingFeed, setIsPollingFeed] = useState<boolean>(false);
+
+  const NEYNAR_API_KEY: string = import.meta.env.VITE_NEYNAR_API_KEY;
 
   //  check whether player is holding the required token to access the feed
   const { walletClient } = useContext(WalletContext);
@@ -63,33 +61,51 @@ export default function Farcaster() {
   }, [walletClient?.account]);
 
   // debugging function to check if the user data has been written to the mud table correctly
+  // const checkUser = () => {
+  //   console.log("allRegisteredUsers: ", allRegisteredUsers);
+  //   if (allRegisteredUsers) {
+  //     let newFids = [];
+  //     console.log("allRegisteredUsers: ", allRegisteredUsers);
+  //     // loop through gameSessions and find the one with the matching gameId
+  //     for (let i = 0; i < allRegisteredUsers.length; i++) {
+  //       const user = allRegisteredUsers[i];
+  //       const rec = getComponentValue(FidRegistry, user);
+  //       console.log("user:");
+  //       console.dir(rec);
+  //       console.log(
+  //         "walletClient?.account?.address: ",
+  //         walletClient?.account?.address
+  //       );
+  //       console.log("rec?.playerAddress: ", rec?.playerAddress);
+  //       console.log("rec?.fid: ", rec?.fid);
+  //       if (rec?.fid && !registeredFids.includes(rec.fid)) {
+  //         newFids.push(rec.fid);
+  //       }
+  //     }
+  //     console.log("newFids: ", newFids);
+  //     if (newFids.length > 0) {
+  //       setRegisteredFids((currentFids) => [...currentFids, ...newFids]);
+  //     }
+  //     console.log("registeredFids: ", registeredFids);
+  //   }
+  // };
   const checkUser = () => {
+    console.log("allRegisteredUsers: ", allRegisteredUsers);
+    let newFids = [];
     if (allRegisteredUsers) {
-      console.log("registeredUsers: ", allRegisteredUsers);
-      // loop through gameSessions and find the one with the matching gameId
       for (let i = 0; i < allRegisteredUsers.length; i++) {
         const user = allRegisteredUsers[i];
         const rec = getComponentValue(FidRegistry, user);
         console.log("user:");
         console.dir(rec);
 
-        console.log(
-          "walletClient?.account?.address: ",
-          walletClient?.account?.address
-        );
-        console.log("rec?.playerAddress: ", rec?.playerAddress);
-
-        // check if the currently connecte user is in the allRegisterUsers list
-        if (
-          rec?.playerAddress.toLowerCase() === walletClient?.account?.address
-        ) {
-          console.log("User is registered");
-          console.log("Player FID: ", rec?.fid);
-          console.log("Player Address: ", rec?.playerAddress);
-          setRegisteredUser(true);
-          break;
+        if (rec?.fid && !registeredFids.includes(rec.fid)) {
+          newFids.push(rec.fid);
         }
       }
+    }
+    if (newFids.length > 0) {
+      setRegisteredFids((currentFids) => [...currentFids, ...newFids]);
     }
   };
 
@@ -133,6 +149,97 @@ export default function Farcaster() {
       console.error("Error registering FID: ", error);
     }
   };
+
+  const moderate = async (data: Response) => {
+    const MODERATOR_FID = Number(process.env.MODERATOR_FID);
+    console.log("Moderator function called");
+    const casts: Cast[] = data.casts;
+    //  loop through casts
+    for (let i = 0; i < casts.length; i++) {
+      const cast = casts[i];
+      const authorFid = cast.author.fid;
+      console.log("Author FID: ", authorFid);
+      //  check if the author is registered
+      for (let i = 0; i < allRegisteredUsers.length; i++) {
+        const user = allRegisteredUsers[i];
+        const rec = getComponentValue(FidRegistry, user);
+        console.log("user:");
+        console.dir(rec);
+        if (rec?.fid === authorFid) {
+          console.log(`Author ${rec?.fid} is registered`);
+          // check if the moderattor has liked the cast yet
+          console.log("cast.reactions.likes: ", cast.reactions.likes);
+          if (cast.reactions.likes.length > 0) {
+            for (let i = 0; i < cast.reactions.likes.length; i++) {
+              const like = cast.reactions.likes[i];
+              if (like.fid === MODERATOR_FID) {
+                console.log("Moderator has already liked the cast");
+              }
+            }
+          } else {
+            console.log("Moderator has not liked the cast yet");
+            // like the cast
+
+            const hash = cast.hash;
+            const url = "https://api.neynar.com/v2/farcaster/reaction";
+            const options = {
+              method: "POST",
+              headers: {
+                accept: "application/json",
+                api_key: NEYNAR_API_KEY,
+                "content-type": "application/json",
+              },
+              body: JSON.stringify({
+                reaction_type: "like",
+                signer_uuid: "783acc60-28e2-4bfe-9cc2-1cd53bc9df60",
+                target: hash,
+              }),
+            };
+            fetch(url, options)
+              .then((res) => res.json())
+              .then((json) => console.log(json))
+              .catch((err) => console.error("error:" + err));
+          }
+        } else {
+          console.log(`Author ${rec?.fid} is not registered`);
+        }
+      }
+    }
+  };
+
+  const pollFeed = async () => {
+    setIsPollingFeed(!isPollingFeed);
+    let intervalId: NodeJS.Timeout;
+    intervalId = setInterval(async () => {
+      const channelId: string = "dead";
+      const url = `https://api.neynar.com/v2/farcaster/feed/channels?channel_ids=${channelId}&with_recasts=true&viewer_fid=3&with_replies=false&limit=25&should_moderate=false`;
+
+      if (!NEYNAR_API_KEY) {
+        console.error("API key is not set");
+        return;
+      }
+      const options = {
+        method: "GET",
+        headers: { accept: "application/json", api_key: NEYNAR_API_KEY },
+      };
+      try {
+        const response = await fetch(url, options);
+        const data: Response = await response.json();
+        console.log("Feed Polling Response:", data);
+        moderate(data);
+        setFeed(data);
+      } catch (err) {
+        console.error("error:" + err);
+      }
+    }, 30000);
+  };
+
+  useEffect(() => {
+    if (!isPollingFeed) {
+      pollFeed();
+    }
+  }),
+    [];
 
   useEffect(() => {
     if (farcasterUser && farcasterUser.status === "pending_approval") {
@@ -222,7 +329,7 @@ export default function Farcaster() {
               onClick={handleSignIn}
               disabled={loading}
             >
-              {loading ? "Loading..." : "Sign in with farcaster"}
+              {loading ? "Loading..." : "Sign in with farcaster to cast"}
             </button>
           )}
           <FarcasterFeed />
@@ -245,7 +352,7 @@ export default function Farcaster() {
             <div className={styles.castSection}>
               <div className={styles.userInfo}>
                 {/* TODO replace this with the farcaster user name */}
-                Hello {farcasterUser.fid} 👋 
+                Hello {farcasterUser.fid} 👋
               </div>
               <div className={styles.castContainer}>
                 <textarea
@@ -264,6 +371,9 @@ export default function Farcaster() {
                 </button>
                 <button className={styles.btn} onClick={checkUser}>
                   Check User
+                </button>
+                <button className={styles.btn} onClick={pollFeed}>
+                  Poll Feed
                 </button>
               </div>
             </div>

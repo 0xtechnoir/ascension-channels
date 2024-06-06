@@ -36,7 +36,6 @@ export function createSystemCalls(
 ) {
   const registerFid = async (fid: number, addr: string) => {
     try {
-      const fid: number = 123456;
       const address = getAddress(addr)
       console.log(`Attempting to Register FID ${fid} with address ${addr}`);
       const tx = await worldContract.write.tn_ns_1__registerFid([fid, address]);
