@@ -13,6 +13,7 @@ import SmartStorageUnitActions from "./SmartStorageUnitActions";
 import EquippedModules from "./Modules";
 import BaseImage from "../assets/base-image.png";
 import Farcaster from "./Farcaster";
+import { MudComponent } from "./MudComponent";
 
 export default function EntityView() {
   const { smartDeployable, loading, isCurrentChain } =
@@ -48,6 +49,7 @@ export default function EntityView() {
           <img src={BaseImage} />
           <SmartStorageUnitActions />
           <div className="Quantum-Container font-normal text-xs !py-4">
+            <MudComponent />
             <Farcaster />
           </div>
           <div className="Quantum-Container Title">Description</div>

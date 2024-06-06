@@ -8,9 +8,10 @@ node_modules/
 vendor/
 
 # Ignore environment-specific files
-.env
-.env.*
+**/.env
+**/.env.*
 .envsample
+
 
 # Ignore logs and cache files
 logs/

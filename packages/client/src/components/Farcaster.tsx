@@ -4,6 +4,9 @@ import styles from "./page.module.css";
 import QRCode from "qrcode.react";
 import { WalletContext } from "@eveworld/contexts";
 import FarcasterFeed from "./FarcasterFeed";
+import { setup } from "../mud/setup";
+import mudConfig from "../../../contracts/mud.config";
+import { MudComponent } from "./MudComponent";
 
 interface FarcasterUser {
   signer_uuid: string;
@@ -14,7 +17,7 @@ interface FarcasterUser {
 }
 
 export default function Farcaster() {
-
+  
   const REQUIRED_TOKEN = "0x011FAeAf1d555beD45861193359dB0287D7648C2";
   const FAKE_TOKEN = "0x325d0fB01432ba65faCF5691e087ddb68e9de911";
   const LOCAL_STORAGE_KEYS = {
@@ -32,7 +35,7 @@ export default function Farcaster() {
   useEffect(() => {
     if (!walletClient?.account) return;
     const addr = walletClient.account.address;
-    console.log("Account Address: ", addr.toLowerCase())
+    // console.log("Account Address: ", addr.toLowerCase())
 
     Promise.resolve(
       fetch(
@@ -42,7 +45,7 @@ export default function Farcaster() {
       .then((res) => res.json())
       .then((x) => {
         for (let i = 0; i < x.items.length; i++) {
-          console.log("player address: ", x.items[i].address.hash.toLowerCase());
+          // console.log("player address: ", x.items[i].address.hash.toLowerCase());
           if (x.items[i].address.hash.toLowerCase() == addr.toLowerCase()) {
             console.log("Player holds the correct token. Granting Access");
             setHasAccess(true);
@@ -176,6 +179,7 @@ export default function Farcaster() {
               </button>
               )
             }
+            <MudComponent />
             <FarcasterFeed />
             {farcasterUser?.status == "pending_approval" &&
               farcasterUser?.signer_approval_url && (

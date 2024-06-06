@@ -121,7 +121,7 @@ export default function FarcasterFeed() {
   useEffect(() => {
     // Asynchronously fetch user data when the component mounts
     const fetchFeed = async () => {
-      const url = `https://api.neynar.com/v2/farcaster/feed/channels?channel_ids=${channelId}&with_recasts=true&viewer_fid=3&with_replies=false&limit=25&should_moderate=true`;
+      const url = `https://api.neynar.com/v2/farcaster/feed/channels?channel_ids=${channelId}&with_recasts=true&viewer_fid=3&with_replies=false&limit=25&should_moderate=false`;
 
       if (!apiKey) {
         console.error("API key is not set");
@@ -160,6 +160,7 @@ export default function FarcasterFeed() {
             />
             <p>Author: {cast.author.display_name}</p>
             <p>Username: {cast.author.username}</p>
+            <p>FID: {cast.author.fid}</p>
             <p>
               Timestamp:{" "}
               {new Date(cast.timestamp).toLocaleString("en-GB", {

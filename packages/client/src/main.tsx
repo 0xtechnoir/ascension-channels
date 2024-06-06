@@ -1,17 +1,16 @@
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
 import { ThemeProvider, createTheme } from "@mui/material";
-
 import {
   SmartObjectProvider,
   FeedbackProvider,
   WalletProvider,
   WorldProvider,
 } from "@eveworld/contexts";
-
 import App from "./App";
 import EntityView from "./components/EntityView";
+import { MUDProvider } from "./mud/MUDContext";
+import { setup } from "./mud/setup";
 
 const darkTheme = createTheme({
   palette: {
@@ -56,8 +55,8 @@ const darkTheme = createTheme({
         root: {
           padding: "0px !important",
         },
-    }
-  },
+      },
+    },
     MuiAlert: {
       styleOverrides: {
         root: {
@@ -66,9 +65,10 @@ const darkTheme = createTheme({
         message: {
           padding: "8px 16px !important",
         },
-    }
+      },
+    },
   },
-}});
+});
 
 const router = createBrowserRouter([
   {
@@ -82,16 +82,20 @@ const router = createBrowserRouter([
   },
 ]);
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <WalletProvider>
-    <WorldProvider>
-      <ThemeProvider theme={darkTheme}>
-        <SmartObjectProvider>
-          <FeedbackProvider>
-            <RouterProvider router={router} />
-          </FeedbackProvider>
-        </SmartObjectProvider>
-      </ThemeProvider>
-    </WorldProvider>
-  </WalletProvider>
-);
+setup().then((result) => {
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <MUDProvider value={result}>
+      <WalletProvider>
+        <WorldProvider>
+          <ThemeProvider theme={darkTheme}>
+            <SmartObjectProvider>
+              <FeedbackProvider>
+                <RouterProvider router={router} />
+              </FeedbackProvider>
+            </SmartObjectProvider>
+          </ThemeProvider>
+        </WorldProvider>
+      </WalletProvider>
+    </MUDProvider>
+  );
+});
