@@ -151,61 +151,60 @@ export default function Farcaster() {
   };
 
   const moderate = async (data: Response) => {
-    const MODERATOR_FID = Number(import.meta.env.MODERATOR_FID);
+    const MODERATOR_FID: number = parseInt(import.meta.env.VITE_MODERATOR_FID);
     console.log("Moderator function called");
-    const casts: Cast[] = data.casts;
-    //  loop through casts
-    for (let i = 0; i < casts.length; i++) {
-      const cast = casts[i];
+
+    const registeredFids = new Set(
+      allRegisteredUsers.map((user) => {
+        const rec = getComponentValue(FidRegistry, user);
+        return rec?.fid; // Add null check here
+      })
+    );
+
+    for (const cast of data.casts) {
       const authorFid = cast.author.fid;
       console.log("Author FID: ", authorFid);
-      //  check if the author is registered
-      for (let i = 0; i < allRegisteredUsers.length; i++) {
-        const user = allRegisteredUsers[i];
-        const rec = getComponentValue(FidRegistry, user);
-        console.log("user:");
-        console.dir(rec);
-        if (rec?.fid === authorFid) {
-          console.log(`Author ${rec?.fid} is registered`);
-          // check if the moderattor has liked the cast yet
-          console.log("cast.reactions.likes: ", cast.reactions.likes);
-          if (cast.reactions.likes.length > 0) {
-            for (let i = 0; i < cast.reactions.likes.length; i++) {
-              const like = cast.reactions.likes[i];
-              if (like.fid === MODERATOR_FID) {
-                console.log("Moderator has already liked the cast");
-              }
-            }
-          } else {
-            console.log("Moderator has not liked the cast yet");
-            // like the cast
+      console.log("allRegisteredUsers (from MUD table): ", allRegisteredUsers);
 
-            const hash = cast.hash;
-            const url = "https://api.neynar.com/v2/farcaster/reaction";
-            const options = {
-              method: "POST",
-              headers: {
-                accept: "application/json",
-                api_key: NEYNAR_API_KEY,
-                "content-type": "application/json",
-              },
-              body: JSON.stringify({
-                reaction_type: "like",
-                signer_uuid: "783acc60-28e2-4bfe-9cc2-1cd53bc9df60",
-                target: hash,
-              }),
-            };
-            fetch(url, options)
-              .then((res) => res.json())
-              .then((json) => console.log(json))
-              .catch((err) => console.error("error:" + err));
-          }
+      if (registeredFids.has(authorFid)) {
+        console.log(`Author ${authorFid} is registered`);
+
+        if (cast.reactions.likes.length === 0) {
+          console.log("Moderator has not liked the cast yet");
+          likeCast(cast.hash);
+        } else if (!cast.reactions.likes.some(like => like.fid === MODERATOR_FID)) {
+          console.log("Moderator has not liked the cast yet");
+          likeCast(cast.hash);
         } else {
-          console.log(`Author ${rec?.fid} is not registered`);
+          console.log("Moderator has already liked the cast");
         }
+      } else {
+        console.log(`Author ${authorFid} is not registered`);
       }
     }
-  };
+  }
+  
+  async function likeCast(hash: string) {
+    const url = "https://api.neynar.com/v2/farcaster/reaction";
+    const options = {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        api_key: NEYNAR_API_KEY,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        reaction_type: "like",
+        signer_uuid: import.meta.env.VITE_MODERATOR_SIGNER_UUID,
+        target: hash,
+      }),
+    };
+    
+    fetch(url, options)
+    .then(res => res.json())
+    .then(json => console.log(json))
+    .catch(err => console.error("error:", err));
+  }
 
   const pollFeed = async () => {
     setIsPollingFeed(!isPollingFeed);
