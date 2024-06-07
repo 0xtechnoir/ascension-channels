@@ -4,6 +4,7 @@ export interface FarcasterUser {
   status: string;
   signer_approval_url?: string;
   fid?: number;
+  display_name?: string;
 }
 
 export type Response = {

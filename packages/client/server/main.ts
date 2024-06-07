@@ -3,8 +3,11 @@ import ViteExpress from "vite-express";
 import { Request, Response } from "express";
 import getSignedKey from "./getSignedKey";
 import neynarClient from "./neynatClient";
+import getUsername from "./getUsername";
 import "dotenv/config";
 import fetch from "node-fetch";
+import { get } from "http";
+import { FarcasterUser } from "src/components/types";
 
 const PORT = process.env.PORT || 3000;
 const NEYNAR_API_KEY = process.env.VITE_NEYNAR_API_KEY;
@@ -38,7 +41,9 @@ app.get("/signer/:signer_uuid", async (req: Request, res: Response) => {
   }
   try {
     const signer = await neynarClient.lookupSigner(signer_uuid);
-    return res.status(200).send(signer);
+    const displayName = signer.fid ? await getUsername(signer.fid) : undefined;
+    const result: FarcasterUser = { ...signer, display_name: displayName };
+    return res.status(200).send(result);
   } catch (error) {
     return res.status(500).send(error);
   }
@@ -64,8 +69,8 @@ app.post("/cast", async (req: Request, res: Response) => {
 
   fetch(url, options)
     .then((res) => res.json())
-    .then((json) => console.log(json))
-    .catch((err) => console.error("error:" + err));
+    .then((json) => res.status(200).send(json))
+    .catch((err) => res.status);
 });
 
 ViteExpress.listen(app, Number(PORT), () =>

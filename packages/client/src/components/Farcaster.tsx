@@ -6,7 +6,7 @@ import { WalletContext } from "@eveworld/contexts";
 import FarcasterFeed from "./FarcasterFeed";
 import { useMUD } from "../mud/MUDContext";
 import { useEntityQuery } from "@latticexyz/react";
-import { Has, getComponentValue } from "@latticexyz/recs";
+import { Has, getComponentValue, getEntityComponents, getComponentEntities } from "@latticexyz/recs";
 import { Cast, Response, FarcasterUser } from "./types";
 
 export default function Farcaster() {
@@ -15,7 +15,6 @@ export default function Farcaster() {
     systemCalls: { registerFid },
   } = useMUD();
 
-  const allRegisteredUsers = useEntityQuery([Has(FidRegistry)]);
   const [registeredFids, setRegisteredFids] = useState<number[]>([]);
 
   const REQUIRED_TOKEN = "0x011FAeAf1d555beD45861193359dB0287D7648C2";
@@ -31,7 +30,6 @@ export default function Farcaster() {
   const [text, setText] = useState<string>("");
   const [isCasting, setIsCasting] = useState<boolean>(false);
   const [hasAccess, setHasAccess] = useState<boolean>(false);
-  const [feed, setFeed] = useState<Response | null>(null);
   const [isPollingFeed, setIsPollingFeed] = useState<boolean>(false);
 
   const NEYNAR_API_KEY: string = import.meta.env.VITE_NEYNAR_API_KEY;
@@ -60,55 +58,6 @@ export default function Farcaster() {
       .catch((err) => console.error(err));
   }, [walletClient?.account]);
 
-  // debugging function to check if the user data has been written to the mud table correctly
-  // const checkUser = () => {
-  //   console.log("allRegisteredUsers: ", allRegisteredUsers);
-  //   if (allRegisteredUsers) {
-  //     let newFids = [];
-  //     console.log("allRegisteredUsers: ", allRegisteredUsers);
-  //     // loop through gameSessions and find the one with the matching gameId
-  //     for (let i = 0; i < allRegisteredUsers.length; i++) {
-  //       const user = allRegisteredUsers[i];
-  //       const rec = getComponentValue(FidRegistry, user);
-  //       console.log("user:");
-  //       console.dir(rec);
-  //       console.log(
-  //         "walletClient?.account?.address: ",
-  //         walletClient?.account?.address
-  //       );
-  //       console.log("rec?.playerAddress: ", rec?.playerAddress);
-  //       console.log("rec?.fid: ", rec?.fid);
-  //       if (rec?.fid && !registeredFids.includes(rec.fid)) {
-  //         newFids.push(rec.fid);
-  //       }
-  //     }
-  //     console.log("newFids: ", newFids);
-  //     if (newFids.length > 0) {
-  //       setRegisteredFids((currentFids) => [...currentFids, ...newFids]);
-  //     }
-  //     console.log("registeredFids: ", registeredFids);
-  //   }
-  // };
-  const checkUser = () => {
-    console.log("allRegisteredUsers: ", allRegisteredUsers);
-    let newFids = [];
-    if (allRegisteredUsers) {
-      for (let i = 0; i < allRegisteredUsers.length; i++) {
-        const user = allRegisteredUsers[i];
-        const rec = getComponentValue(FidRegistry, user);
-        console.log("user:");
-        console.dir(rec);
-
-        if (rec?.fid && !registeredFids.includes(rec.fid)) {
-          newFids.push(rec.fid);
-        }
-      }
-    }
-    if (newFids.length > 0) {
-      setRegisteredFids((currentFids) => [...currentFids, ...newFids]);
-    }
-  };
-
   const handleCast = async () => {
     setIsCasting(true);
     const castText = text.length === 0 ? "gm" : text;
@@ -117,9 +66,9 @@ export default function Farcaster() {
         text: castText,
         signer_uuid: farcasterUser?.signer_uuid,
       });
+      console.log("Response from cast:", response)
       if (response.status === 200) {
         setText(""); // Clear the text field
-        alert("Cast successful"); //TODO change this from an alert to an in app message. Alerts wont render in game
       }
     } catch (error) {
       console.error("Could not send the cast", error);
@@ -137,13 +86,14 @@ export default function Farcaster() {
   }, []);
 
   const registerUser = async (user: FarcasterUser) => {
+    console.log("Calling registerUser with user: ", user)
     // update the onchain registry with the user's FID
     const fid = user.fid;
     const addr = walletClient?.account?.address;
     console.log(`Registering FID: ${fid} with address: ${addr}`);
     try {
       if (fid && addr) {
-        registerFid(fid, addr);
+        await registerFid(fid, addr);
       }
     } catch (error) {
       console.error("Error registering FID: ", error);
@@ -151,11 +101,13 @@ export default function Farcaster() {
   };
 
   const moderate = async (data: Response) => {
+    // const allRegisteredUsers = useEntityQuery([Has(FidRegistry)]);
+    const allRegisteredUsers = getComponentEntities(FidRegistry);
     const MODERATOR_FID: number = parseInt(import.meta.env.VITE_MODERATOR_FID);
     console.log("Moderator function called");
 
     const registeredFids = new Set(
-      allRegisteredUsers.map((user) => {
+      Array.from(allRegisteredUsers).map((user) => {
         const rec = getComponentValue(FidRegistry, user);
         return rec?.fid; // Add null check here
       })
@@ -165,6 +117,7 @@ export default function Farcaster() {
       const authorFid = cast.author.fid;
       console.log("Author FID: ", authorFid);
       console.log("allRegisteredUsers (from MUD table): ", allRegisteredUsers);
+      console.log("registeredFids (from MUD table): ", registeredFids);
 
       if (registeredFids.has(authorFid)) {
         console.log(`Author ${authorFid} is registered`);
@@ -226,7 +179,6 @@ export default function Farcaster() {
         const data: Response = await response.json();
         console.log("Feed Polling Response:", data);
         moderate(data);
-        setFeed(data);
       } catch (err) {
         console.error("error:" + err);
       }
@@ -350,8 +302,7 @@ export default function Farcaster() {
           {farcasterUser?.status == "approved" && (
             <div className={styles.castSection}>
               <div className={styles.userInfo}>
-                {/* TODO replace this with the farcaster user name */}
-                Hello {farcasterUser.fid} 👋
+                gm {farcasterUser.display_name}
               </div>
               <div className={styles.castContainer}>
                 <textarea
@@ -366,13 +317,7 @@ export default function Farcaster() {
                   onClick={handleCast}
                   disabled={isCasting}
                 >
-                  {isCasting ? <span>🔄</span> : "Cast"}
-                </button>
-                <button className={styles.btn} onClick={checkUser}>
-                  Check User
-                </button>
-                <button className={styles.btn} onClick={pollFeed}>
-                  Poll Feed
+                  {isCasting ? <span>Publishing 🔄</span> : "Cast"}
                 </button>
               </div>
             </div>
