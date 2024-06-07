@@ -43,17 +43,14 @@ export default function FarcasterFeed() {
     <div className="w-full h-96 overflow-y-auto">
       {feed.casts.length != 0 ? (
         feed.casts.map((cast, index) => (
-          <div key={index} style={{ marginBottom: "20px" }}>
+          <div key={index} style={{ marginBottom: "20px", }}>
             <img
               src={cast.author.pfp_url}
               alt={cast.author.display_name}
               style={{ width: "100px" }}
             />
-            <p>Author: {cast.author.display_name}</p>
-            <p>Username: {cast.author.username}</p>
-            <p>FID: {cast.author.fid}</p>
+            <p>{cast.author.display_name}</p>
             <p>
-              Timestamp:{" "}
               {new Date(cast.timestamp).toLocaleString("en-GB", {
                 timeZone: "GMT",
                 hour: "numeric",
@@ -63,17 +60,7 @@ export default function FarcasterFeed() {
                 year: "numeric",
               })}
             </p>
-            <p>Text: {cast.text}</p>
-            <p>Hash: {cast.hash}</p>
-            <p>
-              Link to post:{" "}
-              {`https://warpcast.com/${cast.author.username}/${cast.hash.slice(
-                0,
-                10
-              )}`}
-            </p>
-            <p>Parent URL: {cast.parent_url}</p>
-            <p>Root Parent URL: {cast.root_parent_url}</p>
+            <p>{cast.text}</p>
             <hr />
           </div>
         ))

@@ -42,3 +42,6 @@ Thumbs.db
 *.tmp.*
 *.~lock.*
 .vercel
+
+# Local Netlify folder
+.netlify

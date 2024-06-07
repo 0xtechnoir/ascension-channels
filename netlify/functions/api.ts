@@ -1,25 +1,22 @@
 import express, { Router } from "express";
-import ViteExpress from "vite-express";
 import { Request, Response } from "express";
-import getSignedKey from "./getSignedKey";
-import neynarClient from "./neynatClient";
-import getUsername from "./getUsername";
+import getSignedKey from "../../packages/client/server/getSignedKey"
+import neynarClient from "../../packages/client/server/neynatClient";
+import getUsername from "../../packages/client/server/getUsername";
 import "dotenv/config";
 import fetch from "node-fetch";
-import { get } from "http";
-import { FarcasterUser } from "../src/components/types";
+import { FarcasterUser } from "../../packages/client/src/components/types";
+import serverless from "serverless-http";
 
-const PORT = process.env.PORT || 3000;
 const NEYNAR_API_KEY = process.env.VITE_NEYNAR_API_KEY;
 
-const app = express();
-app.use(express.json());
-
+const api = express();
 const router = Router();
 
-router.get("/hello", (_, res) => {
-  res.send("Hello Vite + React + TypeScript!");
-});
+router.get("/hello", (req, res) => {
+  console.log("Hello endpoint reached")
+  return res.send("Hello Vite + React + TypeScript!");
+})
 
 router.get("/getPosts", async (_: Request, res: Response) => {
   try {
@@ -76,8 +73,6 @@ router.post("/cast", async (req: Request, res: Response) => {
     .catch((err) => res.status);
 });
 
-app.use("/api/", router);
+api.use("/api/", router);
 
-ViteExpress.listen(app, Number(PORT), () =>
-  console.log(`Server is listening on port ${PORT}...`)
-);
+export const handler = serverless(api);

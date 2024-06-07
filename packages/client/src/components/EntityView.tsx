@@ -45,14 +45,10 @@ export default function EntityView() {
               />{" "}
             </span>
           </div>
-          <img src={BaseImage} />
-          <SmartStorageUnitActions />
           <div className="Quantum-Container font-normal text-xs !py-4">
             <Farcaster />
           </div>
-          <div className="Quantum-Container Title">Description</div>
           <div className="Quantum-Container font-normal text-xs !py-4">
-            {smartDeployable?.description}
             {!isCurrentChain && (
               <NetworkMismatch
                 eveType={smartDeployable?.__typename}
@@ -63,8 +59,6 @@ export default function EntityView() {
         </div>
 
         <div className="grid grid-cols-2 mobile:grid-cols-1 bg-crude">
-          <SmartDeployableInfo />
-          <EquippedModules />
         </div>
       </div>
     </EveLoadingAnimation>

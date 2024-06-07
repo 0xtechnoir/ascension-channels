@@ -16,7 +16,7 @@ const App = () => {
   const { connected, publicClient } = useContext(WalletContext);
   const { notification } = useContext(FeedbackContext);
 
-  fetch("/hello")
+  fetch("/api/hello")
     .then((response) => {
       if (response.ok) {
         return response.text(); // This returns another Promise

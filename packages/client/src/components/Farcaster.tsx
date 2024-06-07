@@ -19,6 +19,7 @@ export default function Farcaster() {
 
   const REQUIRED_TOKEN = "0x011FAeAf1d555beD45861193359dB0287D7648C2";
   const FAKE_TOKEN = "0x325d0fB01432ba65faCF5691e087ddb68e9de911"; // for testing purposes
+  const EVE_TOKEN = "0xec79573FAC3b9C103819beBBD00143dfD67059DA"; // for testing purposes
   const LOCAL_STORAGE_KEYS = {
     FARCASTER_USER: "farcasterUser",
   };
@@ -62,11 +63,10 @@ export default function Farcaster() {
     setIsCasting(true);
     const castText = text.length === 0 ? "gm" : text;
     try {
-      const response = await axios.post("/cast", {
+      const response = await axios.post("api/cast", {
         text: castText,
         signer_uuid: farcasterUser?.signer_uuid,
       });
-      console.log("Response from cast:", response)
       if (response.status === 200) {
         setText(""); // Clear the text field
       }
@@ -182,7 +182,7 @@ export default function Farcaster() {
       } catch (err) {
         console.error("error:" + err);
       }
-    }, 30000);
+    }, 50000);
   };
 
   useEffect(() => {
@@ -200,7 +200,7 @@ export default function Farcaster() {
         intervalId = setInterval(async () => {
           try {
             const response = await axios.get(
-              `/signer/${farcasterUser?.signer_uuid}`
+              `api/signer/${farcasterUser?.signer_uuid}`
             );
             const user = response.data as FarcasterUser;
 
@@ -256,7 +256,7 @@ export default function Farcaster() {
 
   const createAndStoreSigner = async () => {
     try {
-      const response = await axios.post("/signer");
+      const response = await axios.post("api/signer");
       if (response.status === 200) {
         localStorage.setItem(
           LOCAL_STORAGE_KEYS.FARCASTER_USER,
@@ -270,10 +270,11 @@ export default function Farcaster() {
   };
 
   return (
-    <div className={styles.container}>
+    <div >
+      <div className={styles.title}>Alliance Channels</div>
       {hasAccess ? (
         <>
-          <div className={styles.userInfo}>Access Granted</div>
+          <div className={styles.userInfo}>Feed Access Granted</div>
           {!farcasterUser?.status && (
             <button
               className={styles.btn}
@@ -307,13 +308,13 @@ export default function Farcaster() {
               <div className={styles.castContainer}>
                 <textarea
                   className={styles.castTextarea}
-                  placeholder="What's on your mind?"
+                  placeholder="What say you anon?"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   rows={5}
                 />
                 <button
-                  className={styles.btn}
+                  className={styles.castbtn}
                   onClick={handleCast}
                   disabled={isCasting}
                 >
@@ -324,7 +325,7 @@ export default function Farcaster() {
           )}
         </>
       ) : (
-        <div className={styles.userInfo}>Access Denied</div>
+        <div className={styles.userInfo}>Access Denied - You do not hold the required token</div>
       )}
     </div>
   );
