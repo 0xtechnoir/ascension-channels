@@ -7,14 +7,15 @@ import "dotenv/config";
 import fetch from "node-fetch";
 import { FarcasterUser } from "../../packages/client/src/components/types";
 import serverless from "serverless-http";
+import { Buffer } from 'buffer';
 
 const NEYNAR_API_KEY = process.env.VITE_NEYNAR_API_KEY;
+const MODERATOR_SIGNER_UUID = process.env.VITE_MODERATOR_SIGNER_UUID;
 
 const api = express();
 const router = Router();
 
 router.get("/hello", (req, res) => {
-  console.log("Hello endpoint reached")
   return res.send("Hello Vite + React + TypeScript!");
 })
 
@@ -52,6 +53,8 @@ router.get("/signer/:signer_uuid", async (req: Request, res: Response) => {
 router.post("/cast", async (req: Request, res: Response) => {
   const channelId: string = "dead";
   const body = req.body;
+  let base64toString = Buffer.from(body, "base64").toString();
+  const data = JSON.parse(base64toString);
   const url = "https://api.neynar.com/v2/farcaster/cast";
   const options = {
     method: "POST",
@@ -61,14 +64,15 @@ router.post("/cast", async (req: Request, res: Response) => {
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      signer_uuid: body.signer_uuid,
-      text: body.text,
+      signer_uuid: data.signer_uuid,
+      text: data.text,
       channel_id: channelId,
     }),
   };
 
   fetch(url, options)
     .then((res) => res.json())
+    .then((json) => console.log("cast post result: ", json))
     .then((json) => res.status(200).send(json))
     .catch((err) => res.status);
 });

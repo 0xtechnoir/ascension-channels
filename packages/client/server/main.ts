@@ -54,7 +54,7 @@ router.get("/signer/:signer_uuid", async (req: Request, res: Response) => {
 
 router.post("/cast", async (req: Request, res: Response) => {
   const channelId: string = "dead";
-  const body = req.body;
+  let body = req.body;
   const url = "https://api.neynar.com/v2/farcaster/cast";
   const options = {
     method: "POST",

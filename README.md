@@ -13,10 +13,10 @@ The dapp currently only connects to a single moderated channel. The moderator bo
 What this effectively means is that users are only able to post in the main channel feed if they have first signed in through the SSU interface. If a user comes direct to the channel without first visiting the SSU, they will not be able to post in the main feed.
 
 ### Stack
-React/Vite frontend
-Farcaster communication facilitated through Neynar APIs
-Farcaster moderator bot running on embedded expressJS server
-Onchain registry built with MUD
+- React/Vite frontend
+- Farcaster communication facilitated through Neynar APIs
+- Farcaster moderator bot running on embedded expressJS server
+- Onchain registry built with MUD
 
 ### How to run locally
 From root directory run
@@ -29,7 +29,7 @@ pnpm run dev
 ```
 View the live app at ```http://localhost:3000```
 
-### Ideas for future iterations:
+### Ideas for future iterations
 - Allow channels to be created directly through the dapp
 - Allow images to be posted through the dapp - seize the memes of production
 - Allow users to mint NFTs on OP mainnet directly via the dapp - opens the door to granular onchain permissions and other interesting interoperability features

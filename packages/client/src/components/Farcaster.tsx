@@ -50,7 +50,7 @@ export default function Farcaster() {
         for (let i = 0; i < x.items.length; i++) {
           // console.log("player address: ", x.items[i].address.hash.toLowerCase());
           if (x.items[i].address.hash.toLowerCase() == addr.toLowerCase()) {
-            console.log("Player holds the correct token. Granting Access");
+            // console.log("Player holds the correct token. Granting Access");
             setHasAccess(true);
             break;
           }
@@ -86,11 +86,11 @@ export default function Farcaster() {
   }, []);
 
   const registerUser = async (user: FarcasterUser) => {
-    console.log("Calling registerUser with user: ", user)
+    // console.log("Calling registerUser with user: ", user)
     // update the onchain registry with the user's FID
     const fid = user.fid;
     const addr = walletClient?.account?.address;
-    console.log(`Registering FID: ${fid} with address: ${addr}`);
+    // console.log(`Registering FID: ${fid} with address: ${addr}`);
     try {
       if (fid && addr) {
         await registerFid(fid, addr);
@@ -104,7 +104,7 @@ export default function Farcaster() {
     // const allRegisteredUsers = useEntityQuery([Has(FidRegistry)]);
     const allRegisteredUsers = getComponentEntities(FidRegistry);
     const MODERATOR_FID: number = parseInt(import.meta.env.VITE_MODERATOR_FID);
-    console.log("Moderator function called");
+    // console.log("Moderator function called");
 
     const registeredFids = new Set(
       Array.from(allRegisteredUsers).map((user) => {
@@ -115,24 +115,24 @@ export default function Farcaster() {
 
     for (const cast of data.casts) {
       const authorFid = cast.author.fid;
-      console.log("Author FID: ", authorFid);
-      console.log("allRegisteredUsers (from MUD table): ", allRegisteredUsers);
+      // console.log("Author FID: ", authorFid);
+      // console.log("allRegisteredUsers (from MUD table): ", allRegisteredUsers);
       console.log("registeredFids (from MUD table): ", registeredFids);
 
       if (registeredFids.has(authorFid)) {
-        console.log(`Author ${authorFid} is registered`);
+        // console.log(`Author ${authorFid} is registered`);
 
         if (cast.reactions.likes.length === 0) {
-          console.log("Moderator has not liked the cast yet");
+          // console.log("Moderator has not liked the cast yet");
           likeCast(cast.hash);
         } else if (!cast.reactions.likes.some(like => like.fid === MODERATOR_FID)) {
-          console.log("Moderator has not liked the cast yet");
+          // console.log("Moderator has not liked the cast yet");
           likeCast(cast.hash);
         } else {
-          console.log("Moderator has already liked the cast");
+          // console.log("Moderator has already liked the cast");
         }
       } else {
-        console.log(`Author ${authorFid} is not registered`);
+        // console.log(`Author ${authorFid} is not registered`);
       }
     }
   }
@@ -155,7 +155,7 @@ export default function Farcaster() {
     
     fetch(url, options)
     .then(res => res.json())
-    .then(json => console.log(json))
+    // .then(json => console.log(json))
     .catch(err => console.error("error:", err));
   }
 
@@ -177,7 +177,7 @@ export default function Farcaster() {
       try {
         const response = await fetch(url, options);
         const data: Response = await response.json();
-        console.log("Feed Polling Response:", data);
+        // console.log("Feed Polling Response:", data);
         moderate(data);
       } catch (err) {
         console.error("error:" + err);
