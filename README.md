@@ -1,6 +1,6 @@
 ## Alliance Channels - Alliance recruitment and acquisition through Farcaster channels
 
-[![Watch the video](images/video_thumbnail.png)](https://drive.google.com/file/d/1CbWx0xnZsNqqimkkgv1jT62davNxzU9b/view?usp=drive_link)
+[![Watch the video](images/video_thumbnail.png)](https://drive.google.com/file/d/18sB9rT3yR-8LUMts2ZSbZG2Ged9CJTnm/view?usp=sharing)
 
 
 ### Why
@@ -33,3 +33,6 @@ View the live app at ```http://localhost:3000```
 - Allow channels to be created directly through the dapp
 - Allow images to be posted through the dapp - seize the memes of production
 - Allow users to mint NFTs on OP mainnet directly via the dapp - opens the door to granular onchain permissions and other interesting interoperability features
+
+### Deploying contracts to the correct world on testnet
+```pnpm deploy:testnet --world-address 0x8dc9cab3e97da6df615a8a24cc07baf110d63071```
